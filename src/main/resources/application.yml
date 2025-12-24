@@ -1,0 +1,17 @@
+server:
+  port: 8082 # Distinct port from other services
+
+spring:
+  application:
+    name: blog-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tokohobby_blogs # Assumes specific DB
+    username: postgres
+    password: password # REPLACE WITH ACTUAL
+  jpa:
+    hibernate:
+      ddl-auto: update # For dev/demo only
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
