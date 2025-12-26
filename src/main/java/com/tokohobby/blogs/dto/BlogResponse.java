@@ -17,6 +17,13 @@ public class BlogResponse {
     private BlogStatus status;
     private String youtubeLink;
     private String imagePath;
+    
+    // Category & Tags
+    private String categoryName;
+    private java.util.List<String> tags;
+    
+    private String previewToken;
+
     private LocalDateTime publishedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

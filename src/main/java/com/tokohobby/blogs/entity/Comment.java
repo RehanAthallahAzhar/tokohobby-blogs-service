@@ -10,60 +10,24 @@ import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
-@Entity // hibernate
-@Table(name = "blogs")
+@Entity
+@Table(name = "comments")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class) // Auto-populates createdAt/updatedAt
-@SQLDelete(sql = "UPDATE blogs SET deleted = true WHERE id = ?") // Soft delete
+@SQLDelete(sql = "UPDATE comments SET deleted = true WHERE id = ?") // Soft delete
 @SQLRestriction("deleted = false") // Filter out soft-deleted records by default
-public class Blog {
-
+public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String authorId;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false, unique = true)
-    private String slug;
-
-    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BlogStatus status;
-
-    private String youtubeLink;
-    private String imagePath;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @ManyToMany
-    @JoinTable(
-        name = "blog_tags",
-        joinColumns = @JoinColumn(name = "blog_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> tags;
-
-    private String previewToken;
-
-    private LocalDateTime publishedAt;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -72,6 +36,26 @@ public class Blog {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    private Long likes;
+
+    @Column(nullable = false)
+    private Long dislikes;
+
+    @ManyToOne
+    @JoinColumn(name = "blog_id")
+    private Blog blog;
+
+    @Column(nullable = false)
+    private String userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private java.util.List<Comment> replies;
 
     @Builder.Default
     private boolean deleted = false;

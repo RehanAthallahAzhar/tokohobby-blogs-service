@@ -19,4 +19,7 @@ public class BlogRequest {
 
     private String youtubeLink;
     private String imagePath;
+
+    private Long categoryId;
+    private java.util.List<Long> tagIds;
 }

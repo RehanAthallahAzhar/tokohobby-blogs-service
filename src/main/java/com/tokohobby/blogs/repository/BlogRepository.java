@@ -20,6 +20,12 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     // Find a specific published blog by slug
     Optional<Blog> findBySlugAndStatus(String slug, BlogStatus status);
 
+    // Find a specific published blog by author id
+    Optional<Blog> findByAuthorIdAndStatus(String authorId, BlogStatus status);
+
+    // Find blog by preview token
+    Optional<Blog> findByPreviewToken(String previewToken);
+
     // Check if slug exists
     boolean existsBySlug(String slug);
 
