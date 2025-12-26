@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @Builder
@@ -20,5 +21,7 @@ public class CommentResponse {
     private Long dislikes;
     private LocalDateTime createdAt;
     private String currentVote; // LIKE, DISLIKE, or null
-    private List<CommentResponse> replies;
+    private String replyToUserId;
+    @Builder.Default
+    private List<CommentResponse> replies = new ArrayList<>();
 }

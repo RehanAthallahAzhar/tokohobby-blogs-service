@@ -11,4 +11,5 @@ public interface BlogProjection {
     String getContent();
     String getYoutubeLink();
     String getImagePath();
+    String getCategoryName();
 }

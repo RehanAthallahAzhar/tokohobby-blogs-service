@@ -50,12 +50,14 @@ public class Comment {
     @Column(nullable = false)
     private String userId;
 
+    private String replyToUserId; // user id of the user who is being replied to
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    private Comment parent;
+    private Comment parent; // who is the parent of this comment
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private java.util.List<Comment> replies;
+    private java.util.List<Comment> replies; // who are the children of this comment
 
     @Builder.Default
     private boolean deleted = false;

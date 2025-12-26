@@ -30,8 +30,9 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     boolean existsBySlug(String slug);
 
     // Optimized Hot Path: Fetch only required columns for public blog list using Native Query
-    @Query(value = "SELECT b.id, b.title, b.slug, b.author_id as authorId, b.published_at as publishedAt, b.content, b.youtube_link as youtubeLink, b.image_path as imagePath " +
+    @Query(value = "SELECT b.id, b.title, b.slug, b.author_id as authorId, b.published_at as publishedAt, b.content, b.youtube_link as youtubeLink, b.image_path as imagePath, c.name as categoryName " +
                    "FROM blogs b " +
+                   "LEFT JOIN categories c ON b.category_id = c.id " +
                    "WHERE b.status = 'PUBLISHED' " +
                    "AND b.deleted = false " +
                    "AND (LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +

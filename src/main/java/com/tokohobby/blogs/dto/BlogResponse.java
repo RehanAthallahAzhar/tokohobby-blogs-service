@@ -19,7 +19,9 @@ public class BlogResponse {
     private String imagePath;
     
     // Category & Tags
+    private Long categoryId;
     private String categoryName;
+    private java.util.List<Long> tagIds;
     private java.util.List<String> tags;
     
     private String previewToken;

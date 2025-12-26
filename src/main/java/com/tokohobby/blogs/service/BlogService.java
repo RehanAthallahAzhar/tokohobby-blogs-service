@@ -194,10 +194,12 @@ public class BlogService {
                 .previewToken(blog.getPreviewToken());
 
         if (blog.getCategory() != null) {
+            builder.categoryId(blog.getCategory().getId());
             builder.categoryName(blog.getCategory().getName());
         }
 
         if (blog.getTags() != null) {
+            builder.tagIds(blog.getTags().stream().map(Tag::getId).collect(Collectors.toList()));
             builder.tags(blog.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         }
 
@@ -214,6 +216,7 @@ public class BlogService {
                 .content(projection.getContent())
                 .youtubeLink(projection.getYoutubeLink())
                 .imagePath(projection.getImagePath())
+                .categoryName(projection.getCategoryName())
                 .build();
     }
 

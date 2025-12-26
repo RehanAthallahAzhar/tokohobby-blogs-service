@@ -25,12 +25,10 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponse> getCommentsByBlogId(Long blogId, String userId) {
-        // Hanya ambil root comments (parent IS NULL)
         return commentRepository.findByBlogIdAndParentIsNullOrderByCreatedAtDesc(blogId).stream()
                 .map(comment -> mapToDTOWithEngagement(comment, userId))
                 .collect(Collectors.toList());
     }
-
     private CommentResponse mapToDTOWithEngagement(Comment comment, String userId) {
         CommentResponse res = mapToDTO(comment);
         
@@ -70,9 +68,19 @@ public class CommentService {
                 .dislikes(0L);
 
         if (request.getParentId() != null) {
-            Comment parent = commentRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
-            builder.parent(parent);
+            Comment target = commentRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Target comment not found"));
+            
+            if (target.getParent() != null && target.getParent().getParent() != null) {
+                throw new IllegalStateException("Maximum comment depth is 2");
+            }
+
+            if (target.getParent() != null) {
+                builder.parent(target.getParent());
+                builder.replyToUserId(target.getUserId());
+            } else {
+                builder.parent(target);
+            }
         }
                 
         return mapToDTO(commentRepository.save(builder.build()));
@@ -156,6 +164,7 @@ public class CommentService {
                 .content(comment.getContent())
                 .blogId(comment.getBlog().getId())
                 .userId(comment.getUserId())
+                .replyToUserId(comment.getReplyToUserId()) // Map field baru
                 .likes(comment.getLikes())
                 .dislikes(comment.getDislikes())
                 .createdAt(comment.getCreatedAt())
