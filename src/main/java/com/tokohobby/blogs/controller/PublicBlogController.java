@@ -22,9 +22,10 @@ public class PublicBlogController {
     public PagedResponse<BlogResponse> getBlogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String keyword) {
-        log.info("REST request to get public blogs. page: {}, size: {}, keyword: {}", page, size, keyword);
-        return blogService.getPublicBlogs(page, size, keyword);
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryId) {
+        log.info("REST request to get public blogs. page: {}, size: {}, keyword: {}, categoryId: {}", page, size, keyword, categoryId);
+        return blogService.getPublicBlogs(page, size, keyword, categoryId);
     }
 
     @GetMapping("/manage")

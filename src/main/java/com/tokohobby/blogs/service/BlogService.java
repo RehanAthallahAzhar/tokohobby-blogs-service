@@ -34,27 +34,34 @@ public class BlogService {
 
     // Public: Get published blogs
     @Transactional(readOnly = true)
-    public PagedResponse<BlogResponse> getPublicBlogs(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size); // Sorting is handled by Native Query
-        
-        Page<BlogProjection> blogPage = blogRepository.findPublicBlogsOptimized(
-                keyword != null ? keyword : "", 
-                pageable
-        );
+    public PagedResponse<BlogResponse> getPublicBlogs(int page, int size, String keyword, Long categoryId) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            
+            Page<BlogProjection> blogPage = blogRepository.findPublicBlogsOptimized(
+                    keyword != null ? keyword : "", 
+                    categoryId,
+                    pageable
+            );
 
-        List<BlogResponse> content = blogPage.getContent().stream()
-                .map(this::mapProjectionToDTO)
-                .collect(Collectors.toList());
+            List<BlogResponse> content = blogPage.getContent().stream()
+                    .map(this::mapProjectionToDTO)
+                    .collect(Collectors.toList());
 
-        return PagedResponse.<BlogResponse>builder()
-                .content(content)
-                .pageNumber(blogPage.getNumber())
-                .pageSize(blogPage.getSize())
-                .totalElements(blogPage.getTotalElements())
-                .totalPages(blogPage.getTotalPages())
-                .last(blogPage.isLast())
-                .build();
+            return PagedResponse.<BlogResponse>builder()
+                    .content(content)
+                    .pageNumber(blogPage.getNumber())
+                    .pageSize(blogPage.getSize())
+                    .totalElements(blogPage.getTotalElements())
+                    .totalPages(blogPage.getTotalPages())
+                    .last(blogPage.isLast())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error retrieving public blogs: {}", e.getMessage(), e);
+            throw e;
+        }
     }
+
 
     // Public: Get single published blog by slug
     @Transactional(readOnly = true)
@@ -92,32 +99,49 @@ public class BlogService {
     @Transactional
     public BlogResponse createBlog(BlogRequest request) {
         log.info("Creating new blog with title: {}", request.getTitle());
-        String slug = generateSlug(request.getTitle());
-        String authorId = UserContext.getUser().getUserId();
         
-        Blog.BlogBuilder builder = Blog.builder()
-                .authorId(authorId)
-                .title(request.getTitle())
-                .slug(slug)
-                .content(request.getContent())
-                .status(request.getStatus())
-                .youtubeLink(request.getYoutubeLink())
-                .imagePath(request.getImagePath())
-                .publishedAt(request.getStatus() == BlogStatus.PUBLISHED ? LocalDateTime.now() : null);
+        try {
+            String slug = generateSlug(request.getTitle());
+            
+            // Get author ID from UserContext, fallback to default for unauthenticated access
+            String authorId;
+            try {
+                authorId = UserContext.getUser().getUserId();
+            } catch (Exception e) {
+                log.warn("UserContext not available, using default author ID");
+                authorId = "default-author-001";
+            }
+            
+            Blog.BlogBuilder builder = Blog.builder()
+                    .authorId(authorId)
+                    .title(request.getTitle())
+                    .slug(slug)
+                    .content(request.getContent())
+                    .status(request.getStatus())
+                    .youtubeLink(request.getYoutubeLink())
+                    .imagePath(request.getImagePath())
+                    .publishedAt(request.getStatus() == BlogStatus.PUBLISHED ? LocalDateTime.now() : null);
 
-        if (request.getStatus() == BlogStatus.DRAFT) {
-            builder.previewToken(UUID.randomUUID().toString());
+            if (request.getStatus() == BlogStatus.DRAFT) {
+                builder.previewToken(UUID.randomUUID().toString());
+            }
+
+            if (request.getCategoryId() != null) {
+                builder.category(categoryRepository.findById(request.getCategoryId()).orElse(null));
+            }
+
+            if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
+                builder.tags(new HashSet<>(tagRepository.findAllById(request.getTagIds())));
+            }
+
+            Blog savedBlog = blogRepository.save(builder.build());
+            log.info("Blog created successfully with ID: {} and slug: {}", savedBlog.getId(), savedBlog.getSlug());
+            return mapToDTO(savedBlog);
+            
+        } catch (Exception e) {
+            log.error("Error creating blog: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to create blog: " + e.getMessage(), e);
         }
-
-        if (request.getCategoryId() != null) {
-            builder.category(categoryRepository.findById(request.getCategoryId()).orElse(null));
-        }
-
-        if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
-            builder.tags(new HashSet<>(tagRepository.findAllById(request.getTagIds())));
-        }
-
-        return mapToDTO(blogRepository.save(builder.build()));
     }
 
     // Admin/Owner: Update blog
@@ -217,6 +241,7 @@ public class BlogService {
                 .youtubeLink(projection.getYoutubeLink())
                 .imagePath(projection.getImagePath())
                 .categoryName(projection.getCategoryName())
+                .tags(projection.getTagNames() != null ? Arrays.asList(projection.getTagNames().split(",")) : Collections.emptyList())
                 .build();
     }
 

@@ -20,16 +20,6 @@ public class SecurityInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // Bypass security for now since auth service is not running and frontend has no login
-        UserContext.User user = UserContext.User.builder()
-                .userId("1")
-                .username("admin")
-                .role("ADMIN")
-                .build();
-        UserContext.setUser(user);
-        return true;
-
-        /*
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -55,7 +45,6 @@ public class SecurityInterceptor implements HandlerInterceptor {
 
         UserContext.setUser(user);
         return true;
-        */
     }
 
     @Override

@@ -30,7 +30,7 @@ public class Blog {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "author_id", nullable = false)
     private String authorId;
 
     @Column(nullable = false)
@@ -46,7 +46,10 @@ public class Blog {
     @Column(nullable = false)
     private BlogStatus status;
 
+    @Column(name = "youtube_link")
     private String youtubeLink;
+    
+    @Column(name = "image_path")
     private String imagePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,16 +64,18 @@ public class Blog {
     )
     private Set<Tag> tags;
 
+    @Column(name = "preview_token")
     private String previewToken;
 
+    @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @Builder.Default

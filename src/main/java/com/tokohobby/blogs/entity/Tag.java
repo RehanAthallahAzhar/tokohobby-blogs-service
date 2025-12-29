@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Locale;
+
 @Entity
 @Table(name = "tags")
 @Data
@@ -22,4 +24,16 @@ public class Tag {
 
     @Column(nullable = false, unique = true)
     private String slug;
+
+    @PrePersist
+    @PreUpdate
+    private void generateSlug() {
+        if (this.slug == null || this.slug.isEmpty()) {
+            this.slug = this.name.toLowerCase(Locale.ROOT)
+                    .replaceAll("[^a-z0-9\\s-]", "")
+                    .replaceAll("\\s+", "-")
+                    .replaceAll("-+", "-")
+                    .trim();
+        }
+    }
 }
