@@ -11,7 +11,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("api/comments")
 @RequiredArgsConstructor
 @Slf4j
 public class PublicCommentController {

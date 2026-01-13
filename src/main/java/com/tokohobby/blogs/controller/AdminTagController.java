@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/tags")
+@RequestMapping("api/admin/tags")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminTagController {

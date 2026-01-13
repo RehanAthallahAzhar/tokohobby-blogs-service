@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/categories")
+@RequestMapping("api/admin/categories")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminCategoryController {
