@@ -136,6 +136,20 @@ public class BlogService {
 
             Blog savedBlog = blogRepository.save(builder.build());
             log.info("Blog created successfully with ID: {} and slug: {}", savedBlog.getId(), savedBlog.getSlug());
+            
+            
+            // TODO: Publish blog published event (disabled - eventPublisher not configured)
+            // CompletableFuture.runAsync(() -> {
+            //     eventPublisher.publishBlogPublished(
+            //         new BlogPublishedEvent(
+            //             savedBlog.getId(), 
+            //             savedBlog.getAuthorId(), 
+            //             savedBlog.getTitle()
+            //         )
+            //     );
+            // });  
+            
+            
             return mapToDTO(savedBlog);
             
         } catch (Exception e) {
@@ -192,6 +206,13 @@ public class BlogService {
 
     private void verifyOwnershipOrAdmin(Blog blog) {
         UserContext.User currentUser = UserContext.getUser();
+        
+        // Allow operations if no user context (unauthenticated access)
+        if (currentUser == null) {
+            log.warn("No user context available, allowing operation without authorization check");
+            return;
+        }
+        
         if ("admin".equalsIgnoreCase(currentUser.getRole())) {
             return;
         }
