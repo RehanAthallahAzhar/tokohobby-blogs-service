@@ -5,9 +5,9 @@ spring:
   application:
     name: blog-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/tokohobby_blogs # Assumes specific DB
-    username: postgres
-    password: password # REPLACE WITH ACTUAL
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://blogs-db:5432/tokohobby_blogs}
+    username: ${SPRING_DATASOURCE_USERNAME:user}
+    password: ${SPRING_DATASOURCE_PASSWORD:supersecret123}
   jpa:
     hibernate:
       ddl-auto: validate # Production: only validate schema, don't modify
